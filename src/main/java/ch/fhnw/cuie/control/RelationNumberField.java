@@ -16,8 +16,6 @@ import javafx.util.converter.NumberStringConverter;
  * Created by cansik on 06.01.17.
  */
 public class RelationNumberField extends AnchorPane {
-    private static String ALLOWED_KEYS = "0123456789.";
-
     private static final double PREFERRED_WIDTH = 200;
     private static final double MINIMUM_WIDTH = 30;
     private static final double MAXIMUM_WIDTH = 800;
