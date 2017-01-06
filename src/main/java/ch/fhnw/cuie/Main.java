@@ -19,7 +19,7 @@ public class Main extends Application {
         primaryStage.setTitle("Relation Number Field Demo");
         primaryStage.setScene(scene);
         primaryStage.setWidth(400);
-        primaryStage.setHeight(250);
+        primaryStage.setHeight(300);
 
         primaryStage.show();
     }
