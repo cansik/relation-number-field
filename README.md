@@ -1,2 +1,2 @@
-# Relation Number Field
+# Relation Number Field [![Build Status](https://travis-ci.org/cansik/relation-number-field.svg?branch=master)](https://travis-ci.org/cansik/relation-number-field) [![codebeat badge](https://codebeat.co/badges/7e483e1b-c7ea-49be-81ab-e50786c2affa)](https://codebeat.co/projects/github-com-cansik-relation-number-field)
 Relation Number Field (RNF) is a custom control for java fx which shows the relation between the number and other values.
