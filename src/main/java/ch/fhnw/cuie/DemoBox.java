@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -13,9 +14,12 @@ import javafx.scene.layout.VBox;
  */
 public class DemoBox extends VBox {
     private Label title;
-    private Button demo1Button;
     private RelationNumberField numberField;
     private TextArea infoArea;
+
+    private Button demo1Button;
+    private Button demo2Button;
+    private Button demo3Button;
 
     public DemoBox() {
         initializeParts();
@@ -31,9 +35,13 @@ public class DemoBox extends VBox {
         numberField.valueProperty().addListener((o, oldVal, newVal) -> updateInfo());
 
         demo1Button = new Button("Demo 1");
-        demo1Button.setOnAction((event) -> {
-            numberField.setValue(70.0);
-        });
+        demo1Button.setOnAction((event) -> numberField.setValue(70.0));
+
+        demo2Button = new Button("Demo 2");
+        demo2Button.setOnAction((event) -> numberField.setValue(100.0));
+
+        demo3Button = new Button("Demo 3");
+        demo3Button.setOnAction((event) -> numberField.setValue(20.0));
     }
 
     private void updateInfo() {
@@ -48,6 +56,6 @@ public class DemoBox extends VBox {
 
         setVgrow(infoArea, Priority.ALWAYS);
 
-        getChildren().addAll(title, numberField, infoArea, demo1Button);
+        getChildren().addAll(title, numberField, infoArea, new HBox(demo1Button, demo2Button, demo3Button));
     }
 }

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="43.0" prefWidth="200.0" style="-fx-border-color: #000000; -fx-background-color: #FFFFFF; -fx-border-radius: 5;" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TextField alignment="TOP_RIGHT" layoutX="2.0" layoutY="2.0" prefHeight="59.0" prefWidth="200.0" style="-fx-alignment: top; -fx-text-box-border: transparent; -fx-focus-color: transparent; -fx-faint-focus-color: transparent;" text="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <font>
+            <Font size="19.0" />
+         </font>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </TextField>
+      <Pane layoutX="1.0" layoutY="66.0" prefHeight="8.0" prefWidth="200.0" style="-fx-background-color: #696969;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+   </children>
+</AnchorPane>

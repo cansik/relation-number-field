@@ -1,13 +1,19 @@
 package ch.fhnw.cuie.control;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.NumberStringConverter;
@@ -15,14 +21,14 @@ import javafx.util.converter.NumberStringConverter;
 /**
  * Created by cansik on 06.01.17.
  */
-public class RelationNumberField extends AnchorPane {
+public class RelationNumberField extends TextField {
     private static final double PREFERRED_WIDTH = 200;
     private static final double MINIMUM_WIDTH = 30;
     private static final double MAXIMUM_WIDTH = 800;
 
-    private static final double PREFERRED_HEIGHT = 70;
+    private static final double PREFERRED_HEIGHT = 30;
     private static final double MINIMUM_HEIGHT = 30;
-    private static final double MAXIMUM_HEIGHT = 200;
+    private static final double MAXIMUM_HEIGHT = 30;
 
 
     // value specific
@@ -35,8 +41,10 @@ public class RelationNumberField extends AnchorPane {
     private DoubleProperty maximum;
 
     // controls
-    private final TextField textField;
-    private final Pane pane;
+    private final AnchorPane pane;
+    private final Rectangle valueRect;
+
+    // animation
 
     // design specific
     private DoubleProperty minimumBarHeight = new SimpleDoubleProperty(10.0);
@@ -55,14 +63,16 @@ public class RelationNumberField extends AnchorPane {
         this.maximum = new SimpleDoubleProperty(maximum);
 
         // init controls
-        textField = new TextField();
         pane = new AnchorPane();
+        valueRect = new Rectangle(0, 0, 0, 4);
 
         formatter = new TextFormatter<>(new DoubleStringConverter());
         converter = new NumberStringConverter();
 
         initializeNumberField();
         initializeControls();
+
+        this.value.addListener((o, oldVal, newVal) -> resizeAnimation());
     }
 
     private void initializeControls() {
@@ -71,26 +81,33 @@ public class RelationNumberField extends AnchorPane {
         setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
         setMaxSize(MAXIMUM_WIDTH, MAXIMUM_HEIGHT);
 
-        AnchorPane.setTopAnchor(textField, 0.0);
-        AnchorPane.setLeftAnchor(textField, 0.0);
-        AnchorPane.setRightAnchor(textField, 0.0);
+        setAlignment(Pos.TOP_RIGHT);
 
-        AnchorPane.setLeftAnchor(pane, 0.0);
-        AnchorPane.setRightAnchor(pane, 0.0);
-        AnchorPane.setBottomAnchor(pane, 0.0);
+        valueRect.setFill(Color.CORNFLOWERBLUE);
+        valueRect.setArcHeight(2);
+        valueRect.setArcWidth(2);
+        AnchorPane.setBottomAnchor(valueRect, 0.0);
 
-        pane.setBackground(new Background(new BackgroundFill(Color.CORNFLOWERBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
-        pane.setMinHeight(minimumBarHeight.doubleValue());
-
-        getChildren().addAll(textField, pane);
+        pane.getChildren().add(valueRect);
+        getChildren().addAll(pane);
     }
 
     private void initializeNumberField() {
         // create binding between value and text
-        Bindings.bindBidirectional(textField.textProperty(), value, converter);
+        Bindings.bindBidirectional(textProperty(), value, converter);
 
         // set number formatter
-        textField.setTextFormatter(formatter);
+        setTextFormatter(formatter);
+    }
+
+    private void resizeAnimation() {
+        double position = Math.min(1, Math.max(0, value.doubleValue() / maximum.doubleValue())) * pane.getWidth();
+
+        final Timeline timeline = new Timeline();
+        final KeyValue kv = new KeyValue(valueRect.widthProperty(), position, Interpolator.EASE_OUT);
+        final KeyFrame kf = new KeyFrame(Duration.millis(500), kv);
+        timeline.getKeyFrames().add(kf);
+        timeline.play();
     }
 
     public double getValue() {
