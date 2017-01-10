@@ -5,13 +5,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
@@ -26,9 +27,9 @@ public class RelationNumberField extends TextField {
     private static final double MINIMUM_WIDTH = 30;
     private static final double MAXIMUM_WIDTH = 800;
 
-    private static final double PREFERRED_HEIGHT = 30;
-    private static final double MINIMUM_HEIGHT = 30;
-    private static final double MAXIMUM_HEIGHT = 30;
+    private static final double PREFERRED_HEIGHT = 32;
+    private static final double MINIMUM_HEIGHT = 32;
+    private static final double MAXIMUM_HEIGHT = 32;
 
     private static final double ANIMATION_DURATION = 500;
     private static final Interpolator ANIMATION_INTERPOLATOR = Interpolator.EASE_OUT;
@@ -47,11 +48,19 @@ public class RelationNumberField extends TextField {
     private final AnchorPane pane;
     private final Rectangle valueRect;
 
-    // animation
+    private final Label minimumLabel;
+    private final Label maximumLabel;
 
+    // animation
+    private final Timeline inLabelAnimation = new Timeline();
+    private final Timeline outLabelAnimation = new Timeline();
 
     // design specific
     private DoubleProperty minimumBarHeight = new SimpleDoubleProperty(4.0);
+
+    private BooleanProperty showRange = new SimpleBooleanProperty(true);
+
+    private ObjectProperty<Paint> barFill = new SimpleObjectProperty<>(new Color(0.203, 0.596, 0.858, 1.0));
 
     public RelationNumberField() {
         this(0.0);
@@ -68,8 +77,9 @@ public class RelationNumberField extends TextField {
 
         // init controls
         pane = new AnchorPane();
-        valueRect = new Rectangle(0, 0, 0, 4);
-        valueRect.heightProperty().bindBidirectional(minimumBarHeight);
+        valueRect = new Rectangle(0, 0, 0, 0);
+        maximumLabel = new Label();
+        minimumLabel = new Label();
 
         formatter = new TextFormatter<>(new DoubleStringConverter());
         converter = new NumberStringConverter();
@@ -77,8 +87,17 @@ public class RelationNumberField extends TextField {
         initializeNumberField();
         initializeControls();
 
+        // setup animations
+        setupLabelAnimation(inLabelAnimation, 0, 1);
+        setupLabelAnimation(outLabelAnimation, -20, 0);
+
         this.value.addListener((o, oldVal, newVal) -> resizeAnimation());
         this.widthProperty().addListener((o, oldVal, newVal) -> resize());
+        this.sceneProperty().addListener((obs, oldScene, newScene) -> resize());
+
+        this.value.setValue(this.value.get());
+        this.minimum.setValue(this.minimum.get());
+        this.maximum.setValue(this.maximum.get());
     }
 
     private void initializeControls() {
@@ -89,18 +108,65 @@ public class RelationNumberField extends TextField {
 
         setAlignment(Pos.TOP_RIGHT);
 
-        valueRect.setFill(Color.CORNFLOWERBLUE);
+        applyLabelStyle(minimumLabel);
+        applyLabelStyle(maximumLabel);
+
+        AnchorPane.setTopAnchor(maximumLabel, 7.0);
+
+        valueRect.fillProperty().bindBidirectional(barFill);
+        valueRect.heightProperty().bindBidirectional(minimumBarHeight);
         valueRect.setArcHeight(2);
         valueRect.setArcWidth(2);
-        AnchorPane.setBottomAnchor(valueRect, 0.0);
 
-        pane.getChildren().add(valueRect);
+        // maximum label show
+        setOnMouseEntered(me -> fadeLabelsIn());
+        setOnMouseExited(me -> fadeLabelsOut());
+
+        AnchorPane.setBottomAnchor(valueRect, 0.0);
+        AnchorPane.setLeftAnchor(valueRect, 0.0);
+        AnchorPane.setRightAnchor(valueRect, 0.0);
+
+        pane.getChildren().addAll(valueRect, maximumLabel, minimumLabel);
         getChildren().addAll(pane);
+    }
+
+    private void setupLabelAnimation(Timeline timeline, double xPosition, double opacity) {
+        final KeyValue kvMin = new KeyValue(minimumLabel.layoutXProperty(), xPosition, ANIMATION_INTERPOLATOR);
+        final KeyValue kvMax = new KeyValue(maximumLabel.layoutXProperty(), xPosition, ANIMATION_INTERPOLATOR);
+
+        final KeyValue opMin = new KeyValue(minimumLabel.opacityProperty(), opacity, ANIMATION_INTERPOLATOR);
+        final KeyValue opMax = new KeyValue(maximumLabel.opacityProperty(), opacity, ANIMATION_INTERPOLATOR);
+
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), kvMin));
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), kvMax));
+
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), opMin));
+        timeline.getKeyFrames().add(new KeyFrame(Duration.millis(50), opMax));
+    }
+
+    private void fadeLabelsIn() {
+        if (showRange.getValue()) {
+            outLabelAnimation.stop();
+            inLabelAnimation.play();
+        }
+    }
+
+    private void fadeLabelsOut() {
+        inLabelAnimation.stop();
+        outLabelAnimation.play();
+    }
+
+    private void applyLabelStyle(Label label) {
+        label.setTextFill(Color.web("#2c3e50"));
+        label.setStyle("-fx-font-size: 8;");
     }
 
     private void initializeNumberField() {
         // create binding between value and text
         Bindings.bindBidirectional(textProperty(), value, converter);
+
+        minimum.addListener((obs, o, n) -> minimumLabel.setText("Min: " + n));
+        maximum.addListener((obs, o, n) -> maximumLabel.setText("Max: " + n));
 
         // set number formatter
         setTextFormatter(formatter);
@@ -167,5 +233,41 @@ public class RelationNumberField extends TextField {
 
     public void setMaximum(double maximum) {
         this.maximum.set(maximum);
+    }
+
+    public double getMinimumBarHeight() {
+        return minimumBarHeight.get();
+    }
+
+    public DoubleProperty minimumBarHeightProperty() {
+        return minimumBarHeight;
+    }
+
+    public void setMinimumBarHeight(double minimumBarHeight) {
+        this.minimumBarHeight.set(minimumBarHeight);
+    }
+
+    public Paint getBarFill() {
+        return barFill.get();
+    }
+
+    public ObjectProperty<Paint> barFillProperty() {
+        return barFill;
+    }
+
+    public void setBarFill(Paint barFill) {
+        this.barFill.set(barFill);
+    }
+
+    public boolean isShowRange() {
+        return showRange.get();
+    }
+
+    public BooleanProperty showRangeProperty() {
+        return showRange;
+    }
+
+    public void setShowRange(boolean showRange) {
+        this.showRange.set(showRange);
     }
 }
