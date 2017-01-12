@@ -1,6 +1,8 @@
 package ch.fhnw.cuie;
 
 import ch.fhnw.cuie.control.RelationNumberField;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,6 +24,8 @@ public class DemoBox extends VBox {
     private Button demo1Button;
     private Button demo2Button;
 
+    private DoubleProperty myNumber = new SimpleDoubleProperty(50);
+
     public DemoBox() {
         initializeParts();
         layoutParts();
@@ -34,7 +38,15 @@ public class DemoBox extends VBox {
         numberField2 = new RelationNumberField();
 
         numberField.setMinimum(-100);
+        numberField.setMaximum(50);
+
+        numberField.setMinimum(0);
         numberField.setMaximum(100);
+
+        numberField2.setMinimum(-100);
+        numberField2.setMaximum(200);
+
+        myNumber.bindBidirectional(numberField.valueProperty());
 
         infoArea = new TextArea();
 
@@ -45,9 +57,9 @@ public class DemoBox extends VBox {
         demo1Button.setOnAction((event) -> numberField.setValue(70.0));
 
         demo2Button = new Button("Demo 2");
-        demo2Button.setOnAction((event) -> numberField.setValue(30.0));
+        demo2Button.setOnAction((event) -> myNumber.setValue(30.0));
 
-        numberField.setValue(20);
+        //numberField.setValue(20);
         numberField2.setValue(50);
     }
 

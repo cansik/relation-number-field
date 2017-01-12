@@ -92,8 +92,7 @@ public class RelationNumberField extends TextField {
         setupLabelAnimation(outLabelAnimation, -20, 0);
 
         this.value.addListener((o, oldVal, newVal) -> resizeAnimation());
-        this.widthProperty().addListener((o, oldVal, newVal) -> resize());
-        this.sceneProperty().addListener((obs, oldScene, newScene) -> resize());
+        this.widthProperty().addListener((o) -> resize());
 
         this.value.setValue(this.value.get());
         this.minimum.setValue(this.minimum.get());
@@ -159,6 +158,7 @@ public class RelationNumberField extends TextField {
     private void applyLabelStyle(Label label) {
         label.setTextFill(Color.web("#2c3e50"));
         label.setStyle("-fx-font-size: 8;");
+        label.setClip(this.getClip());
     }
 
     private void initializeNumberField() {
